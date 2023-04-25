@@ -1,3 +1,7 @@
+/* Java Runtime Vesion
+ * JRE : JavaSE-17
+ */
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class test {
 	public void draw() {
@@ -39,11 +44,21 @@ public class test {
 
 		while (balance > 0) {
 			System.out.println("원하는 뽑기 횟수를 선택해주세요.");
-			int pickUp = input.nextInt();
+			String pattern = "^[0-9]*$";
+			String numChk = input.nextLine();
+			Boolean matcher = Pattern.matches(pattern, numChk);
+			while (!matcher) {
+				System.out.println("잘못 입력하였습니다 다시 입력해주세요");
+				numChk = input.nextLine();
+				matcher = Pattern.matches(pattern, numChk);
+			}
+			int pickUp = Integer.parseInt(numChk);
+			
 			if (balance < (pickUp * 100)) {
 				System.out.println("현재 잔액보다 뽑기 횟수가 더 많습니다. 다시 입력해주세요");
 				pickUp = input.nextInt();
 			}
+
 			// 당첨과 꽝 확인
 			for (int i = 0; i < pickUp; pickUp--) {
 				String type;
@@ -69,31 +84,31 @@ public class test {
 					String[] check = giveaway.replaceAll(" ", "").split(",");
 
 					// 남은 유통기한을 확인
-					
-						Date exDate;
-						try {
-							exDate = sdf.parse(check[1]);
-							
-							if (exDate.after(today)) {
-								System.out.println("축하합니다 " + check[0] + "에 당첨되었습니다.");
-								if (type.equals("B")) {
-									int left = leftB.get(random) - 1;
-									leftB.put(random, left);
-									if (leftB.get(random) == 0) {
-										leftB.remove(random);
-										product.get("B").remove(random);
-									}
+
+					Date exDate;
+					try {
+						exDate = sdf.parse(check[1]);
+
+						if (exDate.after(today)) {
+							System.out.println("축하합니다 " + check[0] + "에 당첨되었습니다.");
+							if (type.equals("B")) {
+								int left = leftB.get(random) - 1;
+								leftB.put(random, left);
+								if (leftB.get(random) == 0) {
+									leftB.remove(random);
+									product.get("B").remove(random);
 								}
-								balance -= 100;
-								
-							} else {
-								i--;
 							}
-						} catch (ParseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							balance -= 100;
+
+						} else {
+							i--;
 						}
-					
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
 				}
 			}
 
