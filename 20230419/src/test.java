@@ -44,6 +44,7 @@ public class test {
 
 		while (balance > 0) {
 			System.out.println("원하는 뽑기 횟수를 선택해주세요.");
+			// 뽑기 횟수를 숫자로 받았는지 정규식으로 확인
 			String pattern = "^[0-9]*$";
 			String numChk = input.nextLine();
 			Boolean matcher = Pattern.matches(pattern, numChk);
