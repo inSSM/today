@@ -14,8 +14,24 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class test {
-	public void draw() {
-		Scanner input = new Scanner(System.in);
+	public int intCheck() {
+		// 뽑기 횟수를 숫자로 받았는지 정규식으로 확인
+		Scanner scnn = new Scanner(System.in);
+		System.out.println("뽑기 횟수를 입력해주세요.");
+		String pattern = "^[0-9]*$";
+		String numChk = scnn.nextLine();
+		Boolean matcher = Pattern.matches(pattern, numChk);
+		while (!matcher) {
+			System.out.println("잘못 입력하였습니다 다시 입력해주세요");
+			numChk = scnn.nextLine();
+			matcher = Pattern.matches(pattern, numChk);
+		}
+		int pickUp = Integer.parseInt(numChk);
+		return pickUp;
+	}
+
+	public void draw(int pickUp) {
+		Scanner scnn = new Scanner(System.in);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+09:00");
 		Date today = new Date();
 		Random r = new Random();
@@ -43,77 +59,73 @@ public class test {
 		leftB.put(3, 3);
 
 		while (balance > 0) {
-			System.out.println("원하는 뽑기 횟수를 선택해주세요.");
-			// 뽑기 횟수를 숫자로 받았는지 정규식으로 확인
-			String pattern = "^[0-9]*$";
-			String numChk = input.nextLine();
-			Boolean matcher = Pattern.matches(pattern, numChk);
-			while (!matcher) {
-				System.out.println("잘못 입력하였습니다 다시 입력해주세요");
-				numChk = input.nextLine();
-				matcher = Pattern.matches(pattern, numChk);
-			}
-			int pickUp = Integer.parseInt(numChk);
-			
+
 			if (balance < (pickUp * 100)) {
 				System.out.println("현재 잔액보다 뽑기 횟수가 더 많습니다. 다시 입력해주세요");
-				pickUp = input.nextInt();
-			}
-
-			// 당첨과 꽝 확인
-			for (int i = 0; i < pickUp; pickUp--) {
-				String type;
-				int probA = r.nextInt(100);
-				if (probA < 90) {
-					type = "A";
-				} else {
-					int probB = r.nextInt(100);
-					if (probB < 90) {
-						type = "lt";
+				intCheck();
+			} else {
+				// 당첨과 꽝 확인
+				for (int i = 0; i < pickUp; pickUp--) {
+					String type;
+					int probA = r.nextInt(100);
+					if (probA < 90) {
+						type = "A";
 					} else {
-						type = "B";
-					}
-				}
-
-				if (type.equals("lt")) {
-					System.out.println("꽝입니다.");
-					balance -= 100;
-				} else {
-					// 랜덤한 상품을 가져온다
-					int random = r.nextInt(product.get(type).size());
-					String giveaway = product.get(type).get(random);
-					String[] check = giveaway.replaceAll(" ", "").split(",");
-
-					// 남은 유통기한을 확인
-
-					Date exDate;
-					try {
-						exDate = sdf.parse(check[1]);
-
-						if (exDate.after(today)) {
-							System.out.println("축하합니다 " + check[0] + "에 당첨되었습니다.");
-							if (type.equals("B")) {
-								int left = leftB.get(random) - 1;
-								leftB.put(random, left);
-								if (leftB.get(random) == 0) {
-									leftB.remove(random);
-									product.get("B").remove(random);
-								}
-							}
-							balance -= 100;
-
+						int probB = r.nextInt(100);
+						if (probB < 90) {
+							type = "lt";
 						} else {
-							i--;
+							type = "B";
 						}
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
 
+					if (type.equals("lt")) {
+						System.out.println("꽝입니다.");
+						balance -= 100;
+					} else {
+						// 랜덤한 상품을 가져온다
+						int random = r.nextInt(product.get(type).size());
+						String giveaway = product.get(type).get(random);
+						String[] check = giveaway.replaceAll(" ", "").split(",");
+
+						// 남은 유통기한을 확인
+
+						Date exDate;
+						try {
+							exDate = sdf.parse(check[1]);
+
+							if (exDate.after(today)) {
+								System.out.println("축하합니다 " + check[0] + "에 당첨되었습니다.");
+								if (type.equals("B")) {
+									int left = leftB.get(random) - 1;
+									leftB.put(random, left);
+									if (leftB.get(random) == 0) {
+										leftB.remove(random);
+										product.get("B").remove(random);
+									}
+								}
+								balance -= 100;
+
+							} else {
+								i--;
+							}
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
 				}
+
 			}
 
-			System.out.println("남은 잔액은 " + balance + "입니다.");
+			if (balance != 0) {
+				System.out.println("남은 잔액은 " + balance + "입니다.");
+				pickUp = intCheck();
+			} else {
+				System.out.println("남은 잔액이 소진되었습니다.");
+				break;
+			}
 
 		}
 
@@ -128,13 +140,15 @@ public class test {
 		System.out.println("draw를 입력하시면 상품 뽑기를 시작합니다.");
 		System.out.println("---------------------");
 		start = scnn.nextLine();
-		while (true) {
-			if (start.equals("draw")) {
-				test.draw();
-			} else {
-				System.out.println("올바르지 않은 문구를 입력하였습니다. 다시 입력해주세요");
-				start = scnn.nextLine();
-			}
+
+		while (!start.equals("draw")) {
+			System.out.println("올바르지 않은 문구를 입력하였습니다. 다시 입력해주세요");
+			start = scnn.nextLine();
+
+		}
+		if (start.equals("draw")) {
+			int pickUp = test.intCheck();
+			test.draw(pickUp);
 		}
 
 	}
