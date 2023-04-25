@@ -31,7 +31,6 @@ public class test {
 	}
 
 	public void draw(int pickUp) {
-		Scanner scnn = new Scanner(System.in);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+09:00");
 		Date today = new Date();
 		Random r = new Random();
